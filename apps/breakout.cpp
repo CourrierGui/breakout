@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
 
   // start game within menu state
   // ----------------------------
-  Breakout.m_state = GAME_MENU;
+  Breakout.state = GAME_MENU;
 
   while (!glfwWindowShouldClose(window)) {
     // calculate delta time
@@ -106,10 +106,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     glfwSetWindowShouldClose(window, true);
   if (key >= 0 && key < 1024) {
     if (action == GLFW_PRESS)
-      Breakout.m_keys[key] = true;
+      Breakout.keys[key] = true;
     else if (action == GLFW_RELEASE) {
-      Breakout.m_keys[key] = false;
-      Breakout.m_key_processed[key] = false;
+      Breakout.keys[key] = false;
+      Breakout.key_processed[key] = false;
     }
 
   }

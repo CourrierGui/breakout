@@ -13,7 +13,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-#include <breakout/game-object.hpp>
+#include <pangolin/game-object.hpp>
 
 
 // The size of a PowerUp block

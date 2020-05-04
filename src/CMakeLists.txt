@@ -1,13 +1,9 @@
 set(
   breakout_src
   game.cpp
-  sprite-renderer.cpp
-  game-object.cpp
   game-level.cpp
   ball-object.cpp
-  particle-generator.cpp
   post-processor.cpp
-  text-renderer.cpp
 )
 
 add_library(irrKlanglib SHARED IMPORTED)

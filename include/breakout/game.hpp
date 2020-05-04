@@ -2,14 +2,14 @@
 
 #include <pangolin/resource-manager.hpp>
 #include <pangolin/glfw-support.hpp>
+#include <pangolin/sprite-renderer.hpp>
+#include <pangolin/particle-generator.hpp>
+#include <pangolin/text-renderer.hpp>
 
-#include <breakout/sprite-renderer.hpp>
 #include <breakout/game-level.hpp>
 #include <breakout/ball-object.hpp>
-#include <breakout/particle-generator.hpp>
 #include <breakout/post-processor.hpp>
 #include <breakout/power-up.hpp>
-#include <breakout/text-renderer.hpp>
 
 #include <irrKlang.h> 
 #include <algorithm>
@@ -42,14 +42,14 @@ bool isOtherPowerUpActive(std::vector<PowerUp> &powerUps, std::string type);
 
 class Game {
   public:
-    std::vector<PowerUp>   m_power_ups;
-    std::vector<GameLevel> m_levels;
-    unsigned int m_level;
-    GameState m_state;
-    bool m_keys[1024];
-    bool m_key_processed[1024];
+    std::vector<PowerUp>   power_ups;
+    std::vector<GameLevel> levels;
+    unsigned int level;
+    GameState state;
+    bool keys[1024];
+    bool key_processed[1024];
     unsigned int width, height;
-    unsigned int m_lives;
+    unsigned int lives;
 
     Game(unsigned int width, unsigned int height);
     ~Game();

@@ -6,7 +6,7 @@ void GameLevel::load(
   unsigned int level_height)
 {
   // clear old data
-  m_bricks.clear();
+  bricks.clear();
 
   // load from file
   unsigned int tileCode;
@@ -48,8 +48,8 @@ void GameLevel::init(
           pos, size, 
           ResourceManager::get_texture("block_solid"), 
           glm::vec3(0.8f, 0.8f, 0.7f));
-        obj.m_isSolid = true;
-        m_bricks.push_back(obj);
+        obj.is_solid = true;
+        bricks.push_back(obj);
       }
       else if (tile_data[y][x] > 1)	{
         glm::vec3 color = glm::vec3(1.0f); // original: white
@@ -64,7 +64,7 @@ void GameLevel::init(
 
         glm::vec2 pos(unit_width * x, unit_height * y);
         glm::vec2 size(unit_width, unit_height);
-        m_bricks.push_back(
+        bricks.push_back(
           GameObject(pos, size, ResourceManager::get_texture("block"), color));
       }
     }
@@ -72,14 +72,14 @@ void GameLevel::init(
 }
 
 void GameLevel::draw(SpriteRenderer& renderer) {
-  for (GameObject& tile : m_bricks)
-    if (!tile.m_destroyed)
+  for (GameObject& tile : bricks)
+    if (!tile.destroyed)
       tile.draw(renderer);
 }
 
 bool GameLevel::isCompleted() {
-  for (GameObject& tile : m_bricks)
-    if (!tile.m_isSolid && !tile.m_destroyed)
+  for (GameObject& tile : bricks)
+    if (!tile.is_solid && !tile.destroyed)
       return false;
   return true;
 }

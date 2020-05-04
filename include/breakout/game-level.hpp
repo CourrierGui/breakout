@@ -1,6 +1,6 @@
 #pragma once
 
-#include <breakout/game-object.hpp>
+#include <pangolin/game-object.hpp>
 #include <pangolin/resource-manager.hpp>
 
 #include <vector>
@@ -10,7 +10,7 @@
 class GameLevel {
   public:
     // level state
-    std::vector<GameObject> m_bricks;
+    std::vector<GameObject> bricks;
     // constructor
     GameLevel() { }
     // loads level from file

@@ -1,14 +1,14 @@
 #pragma once
 
 #include <pangolin/glfw-support.hpp>
-#include <breakout/game-object.hpp>
+#include <pangolin/game-object.hpp>
 
 class BallObject : public GameObject {
   public:
     // ball state	
-    float m_radius;
-    bool  m_stuck;
-    bool m_sticky, m_pass_through;
+    float radius;
+    bool  stuck;
+    bool sticky, pass_through;
 
     BallObject();
     BallObject(glm::vec2 pos, float radius, glm::vec2 velocity, Texture2D sprite);
