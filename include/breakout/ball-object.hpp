@@ -8,6 +8,7 @@ class BallObject : public GameObject {
     // ball state	
     float m_radius;
     bool  m_stuck;
+    bool m_sticky, m_pass_through;
 
     BallObject();
     BallObject(glm::vec2 pos, float radius, glm::vec2 velocity, Texture2D sprite);

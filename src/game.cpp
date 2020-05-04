@@ -16,6 +16,8 @@ SpriteRenderer*    renderer;
 ParticleGenerator* particles;
 PostProcessor*     effects;
 
+irrklang::ISoundEngine* sound_engine = irrklang::createIrrKlangDevice();
+
 float shake_time = 0.0f; 
 
 Game::Game(unsigned int width, unsigned int height)
@@ -35,16 +37,16 @@ Game::~Game() {
 void Game::init() {
   // load shaders
   ResourceManager::load_shader(
-    "../resources/shaders/sprite.vs",
-    "../resources/shaders/sprite.fs",
+    "../../resources/shaders/sprite.vs",
+    "../../resources/shaders/sprite.fs",
     nullptr, "sprite");
   ResourceManager::load_shader(
-    "../resources/shaders/particle.vs",
-    "../resources/shaders/particle.fs",
+    "../../resources/shaders/particle.vs",
+    "../../resources/shaders/particle.fs",
     nullptr, "particle");
   ResourceManager::load_shader(
-    "../resources/shaders/postprocessor.vs",
-    "../resources/shaders/postprocessor.fs",
+    "../../resources/shaders/postprocessor.vs",
+    "../../resources/shaders/postprocessor.fs",
     nullptr, "postprocessing");
 
   // configure shaders
@@ -58,20 +60,27 @@ void Game::init() {
   renderer = new SpriteRenderer(ResourceManager::get_shader("sprite"));
   effects = new PostProcessor(ResourceManager::get_shader("postprocessing"),
                               width, height);
+  sound_engine->play2D("../../resources/sound/breakout.mp3", true);
 
   // load textures
-  ResourceManager::load_texture("../resources/textures/background.jpg", false, "background");
-  ResourceManager::load_texture("../resources/textures/awesomeface.png", true, "face");
-  ResourceManager::load_texture("../resources/textures/block.png", false, "block");
-  ResourceManager::load_texture("../resources/textures/block_solid.png", false, "block_solid");
-  ResourceManager::load_texture("../resources/textures/paddle.png", true, "paddle");
-  ResourceManager::load_texture("../resources/textures/particle.png", true, "particle"); 
+  ResourceManager::load_texture("../../resources/textures/background.jpg",          false, "background");
+  ResourceManager::load_texture("../../resources/textures/awesomeface.png",         true,  "face");
+  ResourceManager::load_texture("../../resources/textures/block.png",               false, "block");
+  ResourceManager::load_texture("../../resources/textures/block_solid.png",         false, "block_solid");
+  ResourceManager::load_texture("../../resources/textures/paddle.png",              true,  "paddle");
+  ResourceManager::load_texture("../../resources/textures/particle.png",            true,  "particle"); 
+  ResourceManager::load_texture("../../resources/textures/powerup_speed.png",       true,  "powerup_speed");
+  ResourceManager::load_texture("../../resources/textures/powerup_sticky.png",      true,  "powerup_sticky");
+  ResourceManager::load_texture("../../resources/textures/powerup_increase.png",    true,  "powerup_increase");
+  ResourceManager::load_texture("../../resources/textures/powerup_confuse.png",     true,  "powerup_confuse");
+  ResourceManager::load_texture("../../resources/textures/powerup_chaos.png",       true,  "powerup_chaos");
+  ResourceManager::load_texture("../../resources/textures/powerup_passthrough.png", true,  "powerup_passthrough");
 
   // load levels
-  GameLevel one;   one.load("../resources/levels/one.lvl",   width, height / 2);
-  GameLevel two;   two.load("../resources/levels/two.lvl",   width, height / 2);
-  GameLevel three; three.load("../resources/levels/three.lvl", width, height / 2);
-  GameLevel four;  four.load("../resources/levels/four.lvl",  width, height / 2);
+  GameLevel one;   one.load("../../resources/levels/one.lvl",   width, height / 2);
+  GameLevel two;   two.load("../../resources/levels/two.lvl",   width, height / 2);
+  GameLevel three; three.load("../../resources/levels/three.lvl", width, height / 2);
+  GameLevel four;  four.load("../../resources/levels/four.lvl",  width, height / 2);
   m_levels.push_back(one);
   m_levels.push_back(two);
   m_levels.push_back(three);
@@ -107,6 +116,7 @@ void Game::update(float dt) {
       effects->Shake = false;
     }
   }
+  update_power_ups(dt);
 
   if (ball->m_position.y >= height) { // did ball reach bottom edge?
     reset_level();
@@ -124,21 +134,56 @@ void Game::render() {
     m_levels[m_level].draw(*renderer);
     player->draw(*renderer);
     particles->draw(); 
+    for (PowerUp &powerUp : m_power_ups)
+      if (!powerUp.m_destroyed)
+        powerUp.draw(*renderer);
     ball->draw(*renderer);
     effects->EndRender();
     effects->Render(glfwGetTime());
   }
 }
 
+bool should_spawn(unsigned int chance) {
+  unsigned int random = rand() % chance;
+  return random == 0;
+}
+
+void Game::spawn_power_ups(GameObject& block) {
+  if (should_spawn(GOOD_RATE)) // 1 in GOOD_RATE chance
+    m_power_ups.push_back(
+      PowerUp("speed", glm::vec3(0.5f, 0.5f, 1.0f), 0.0f,
+              block.m_position, ResourceManager::get_texture("powerup_speed")));
+  if (should_spawn(GOOD_RATE))
+    m_power_ups.push_back(
+      PowerUp("sticky", glm::vec3(1.0f, 0.5f, 1.0f), 20.0f,
+              block.m_position, ResourceManager::get_texture("powerup_sticky")));
+  if (should_spawn(GOOD_RATE))
+      m_power_ups.push_back(
+        PowerUp("pass-through", glm::vec3(0.5f, 1.0f, 0.5f), 10.0f,
+                block.m_position, ResourceManager::get_texture("powerup_passthrough")));
+  if (should_spawn(GOOD_RATE))
+  m_power_ups.push_back(
+        PowerUp("pad-size-increase", glm::vec3(1.0f, 0.6f, 0.4), 0.0f,
+                block.m_position, ResourceManager::get_texture("powerup_increase")));
+  if (should_spawn(BAD_RATE)) // negative powerups should spawn more often
+    m_power_ups.push_back(
+      PowerUp("confuse", glm::vec3(1.0f, 0.3f, 0.3f), 5.0f,
+              block.m_position, ResourceManager::get_texture("powerup_confuse")));
+  if (should_spawn(BAD_RATE))
+    m_power_ups.push_back(
+      PowerUp("chaos", glm::vec3(0.9f, 0.25f, 0.25f), 5.0f,
+              block.m_position, ResourceManager::get_texture("powerup_chaos")));
+}
+
 void Game::reset_level() {
   if (m_level == 0)
-    m_levels[0].load("../resources/levels/one.lvl", width, height / 2);
+    m_levels[0].load("../../resources/levels/one.lvl", width, height / 2);
   else if (m_level == 1)
-    m_levels[1].load("../resources/levels/two.lvl", width, height / 2);
+    m_levels[1].load("../../resources/levels/two.lvl", width, height / 2);
   else if (m_level == 2)
-    m_levels[2].load("../resources/levels/three.lvl", width, height / 2);
+    m_levels[2].load("../../resources/levels/three.lvl", width, height / 2);
   else if (m_level == 3)
-    m_levels[3].load("../resources/levels/four.lvl", width, height / 2);
+    m_levels[3].load("../../resources/levels/four.lvl", width, height / 2);
 }
 
 void Game::reset_player() {
@@ -179,32 +224,51 @@ void Game::process_collisions() {
     if (!box.m_destroyed) {
       Collision collision = CheckCollision(*ball, box);
       if (std::get<0>(collision)) {
-        if (!box.m_isSolid)
+        if (!box.m_isSolid) {
           box.m_destroyed = true;
-        else {   // if block is solid, enable shake effect
+          this->spawn_power_ups(box);
+          sound_engine->play2D("../../resources/sound/bleep.mp3", GL_FALSE);
+        } else {   // if block is solid, enable shake effect
           shake_time = 0.05f;
           effects->Shake = true;
+          sound_engine->play2D("../../resources/sound/solid.wav", GL_FALSE);
         }
         Direction dir = std::get<1>(collision);
         glm::vec2 diff_vector = std::get<2>(collision);
-        if (dir == LEFT || dir == RIGHT) { // horizontal collision
-          ball->m_velocity.x = -ball->m_velocity.x; // reverse horizontal velocity
-          // relocate
-          float penetration = ball->m_radius - std::abs(diff_vector.x);
-          if (dir == LEFT)
-            ball->m_position.x += penetration; // move ball to right
-          else
-            ball->m_position.x -= penetration; // move ball to left;
+        if (!(ball->m_pass_through && !box.m_isSolid)) {
+          if (dir == LEFT || dir == RIGHT) { // horizontal collision
+            ball->m_velocity.x = -ball->m_velocity.x; // reverse horizontal velocity
+            // relocate
+            float penetration = ball->m_radius - std::abs(diff_vector.x);
+            if (dir == LEFT)
+              ball->m_position.x += penetration; // move ball to right
+            else
+              ball->m_position.x -= penetration; // move ball to left;
+          }
+          else { // vertical collision
+            ball->m_velocity.y = -ball->m_velocity.y; // reverse vertical velocity
+            // relocate
+            float penetration = ball->m_radius - std::abs(diff_vector.y);
+            if (dir == UP)
+              ball->m_position.y -= penetration; // move ball back up
+            else
+              ball->m_position.y += penetration; // move ball back down
+          }
         }
-        else { // vertical collision
-          ball->m_velocity.y = -ball->m_velocity.y; // reverse vertical velocity
-          // relocate
-          float penetration = ball->m_radius - std::abs(diff_vector.y);
-          if (dir == UP)
-            ball->m_position.y -= penetration; // move ball back up
-          else
-            ball->m_position.y += penetration; // move ball back down
-        }
+      }
+    }
+  }
+
+  for (PowerUp& powerUp : m_power_ups) {
+    if (!powerUp.m_destroyed) {
+      if (powerUp.m_position.y >= height)
+        powerUp.m_destroyed = true;
+      if (CheckCollision(*player, powerUp)) {
+        // collided with player, now activate powerup
+        ActivatePowerUp(powerUp);
+        powerUp.m_destroyed = true;
+        powerUp.Activated = true;
+        sound_engine->play2D("../../resources/sound/powerup.wav", true);
       }
     }
   }
@@ -212,6 +276,7 @@ void Game::process_collisions() {
   Collision result = CheckCollision(*ball, *player);
   if (!ball->m_stuck && std::get<0>(result)) {
     // check where it hit the board, and change velocity based on where it hit the board
+    ball->m_stuck = ball->m_sticky;
     float centerBoard = player->m_position.x + player->m_size.x / 2.0f;
     float distance = (ball->m_position.x + ball->m_radius) - centerBoard;
     float percentage = distance / (player->m_size.x / 2.0f);
@@ -222,8 +287,92 @@ void Game::process_collisions() {
     ball->m_velocity.x = INITIAL_BALL_VELOCITY.x * percentage * strength;
     ball->m_velocity.y = -1.0f * std::abs(ball->m_velocity.y);  
     ball->m_velocity = glm::normalize(ball->m_velocity) * glm::length(oldm_velocity);
+    sound_engine->play2D("../../resources/sound/bleep.wav", false);
   }
 }
+
+void ActivatePowerUp(PowerUp& powerUp) {
+  if (powerUp.Type == "speed") {
+    ball->m_velocity *= 1.2;
+  }
+  else if (powerUp.Type == "sticky") {
+    ball->m_sticky = true;
+    player->m_color = glm::vec3(1.0f, 0.5f, 1.0f);
+  }
+  else if (powerUp.Type == "pass-through") {
+    ball->m_pass_through = true;
+    ball->m_color = glm::vec3(1.0f, 0.5f, 0.5f);
+  }
+  else if (powerUp.Type == "pad-size-increase") {
+    player->m_size.x += 50;
+  }
+  else if (powerUp.Type == "confuse") {
+    if (!effects->Chaos)
+      effects->Confuse = true; // only activate if chaos wasn't already active
+  }
+  else if (powerUp.Type == "chaos") {
+    if (!effects->Confuse)
+      effects->Chaos = true;
+  }
+} 
+
+void Game::update_power_ups(float dt) {
+  for (PowerUp &powerUp : m_power_ups) {
+    powerUp.m_position += powerUp.m_velocity * dt;
+    if (powerUp.Activated) {
+      powerUp.Duration -= dt;
+
+      if (powerUp.Duration <= 0.0f) {
+        // remove powerup from list (will later be removed)
+        powerUp.Activated = false;
+        // deactivate effects
+        if (powerUp.Type == "sticky") {
+          if (!isOtherPowerUpActive(m_power_ups, "sticky")) {
+            // only reset if no other PowerUp of type sticky is active
+            ball->m_sticky = false;
+            player->m_color = glm::vec3(1.0f);
+          }
+        }
+        else if (powerUp.Type == "pass-through") {
+          if (!isOtherPowerUpActive(m_power_ups, "pass-through")) {
+            // only reset if no other PowerUp of type pass-through is active
+            ball->m_pass_through = false;
+            ball->m_color = glm::vec3(1.0f);
+          }
+        }
+        else if (powerUp.Type == "confuse") {
+          if (!isOtherPowerUpActive(m_power_ups, "confuse")) {
+            // only reset if no other PowerUp of type confuse is active
+            effects->Confuse = false;
+          }
+        }
+        else if (powerUp.Type == "chaos") {
+          if (!isOtherPowerUpActive(m_power_ups, "chaos")) {
+            // only reset if no other PowerUp of type chaos is active
+            effects->Chaos = false;
+          }
+        }                
+      }
+    }
+  }
+  m_power_ups.erase(
+    std::remove_if(
+      m_power_ups.begin(),
+      m_power_ups.end(),
+      [](const PowerUp &powerUp) {
+        return powerUp.m_destroyed && !powerUp.Activated;
+      }),
+    m_power_ups.end());
+}
+
+bool isOtherPowerUpActive(std::vector<PowerUp>& powerUps, std::string type) {
+  for (const PowerUp &powerUp : powerUps) {
+    if (powerUp.Activated)
+      if (powerUp.Type == type)
+        return true;
+  }
+  return false;
+} 
 
 bool CheckCollision(GameObject& one, GameObject& two) { // AABB - AABB collision
   // Collision x-axis?
