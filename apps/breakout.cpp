@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
 
   // start game within menu state
   // ----------------------------
-  Breakout.m_state = GAME_MENU;
+  Breakout.m_state = GAME_ACTIVE;
 
   while (!glfwWindowShouldClose(window)) {
     // calculate delta time
