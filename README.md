@@ -1,4 +1,4 @@
-# breakout
+# Breakout
 Implementation of the Breakout game in C++.
 
 This game comes from the [LearnOpenGL](https://learnopengl.com) website and was built using my game engine available [here](https://github.com/CourrierGui/pangolin).
@@ -17,8 +17,15 @@ Then copy the file *breakout/extern/irrKlang/irrKlang-64bit-1.6.0/bin/linux-gcc-
 
 I used the [freetype](https://www.freetype.org/download.html) library to
 display text in the game. You can follow the instructions to install it in the
-directory *extern/freetype2/objs/.libs/libfreetype.so*. Make sure to install
-libpng too.
+directory *extern/freetype2*. The installation from the git repository requires:
+
+```
+cd extern/freetype2
+./configure
+make
+```
+The library should then be located at *extern/freetype2/objs/.libs/libfreetype.so*.
+Make sure to install libpng too.
 
 Finally,
 ```
