@@ -8,13 +8,14 @@
  ******************************************************************/
 #pragma once
 
-#include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <pangolin/glfw-support.hpp>
 
 #include <pangolin/texture.hpp>
 #include <breakout/sprite-renderer.hpp>
 #include <pangolin/shader.hpp>
 
+#include <iostream>
 
 // PostProcessor hosts all PostProcessing effects for the Breakout
 // Game. It renders the game on a textured quad after which one can

@@ -31,7 +31,7 @@ PostProcessor::PostProcessor(
     std::cout << "ERROR::POSTPROCESSOR: Failed to initialize MSFBO" << std::endl;
   // also initialize the FBO/texture to blit multisampled color-buffer to; used for shader operations (for postprocessing effects)
   glBindFramebuffer(GL_FRAMEBUFFER, this->FBO);
-  this->Texture.generate(width, height, NULL);
+  this->Texture.generate(width, height, nullptr);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->Texture.ID, 0); // attach texture to framebuffer as its color attachment
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     std::cout << "ERROR::POSTPROCESSOR: Failed to initialize FBO" << std::endl;
@@ -66,14 +66,12 @@ PostProcessor::PostProcessor(
   glUniform1fv(glGetUniformLocation(this->PostProcessingShader.ID, "blur_kernel"), 9, blur_kernel);    
 }
 
-void PostProcessor::BeginRender()
-{
+void PostProcessor::BeginRender() {
   glBindFramebuffer(GL_FRAMEBUFFER, this->MSFBO);
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 }
-void PostProcessor::EndRender()
-{
+void PostProcessor::EndRender() {
   // now resolve multisampled color-buffer into intermediate FBO to store to texture
   glBindFramebuffer(GL_READ_FRAMEBUFFER, this->MSFBO);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->FBO);
@@ -81,8 +79,7 @@ void PostProcessor::EndRender()
   glBindFramebuffer(GL_FRAMEBUFFER, 0); // binds both READ and WRITE framebuffer to default framebuffer
 }
 
-void PostProcessor::Render(float time)
-{
+void PostProcessor::Render(float time) {
   // set uniforms/options
   this->PostProcessingShader.use();
   this->PostProcessingShader.setFloat("time", time);
@@ -97,8 +94,7 @@ void PostProcessor::Render(float time)
   glBindVertexArray(0);
 }
 
-void PostProcessor::initRenderData()
-{
+void PostProcessor::initRenderData() {
   // configure VAO/VBO
   unsigned int VBO;
   float vertices[] = {
