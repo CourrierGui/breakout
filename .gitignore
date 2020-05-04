@@ -4,3 +4,4 @@ tags*
 compile_commands.json
 .clangd
 Session.vim
+extern/*
