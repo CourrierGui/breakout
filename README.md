@@ -23,6 +23,7 @@ directory *extern/freetype2*. The installation from the git repository requires:
 
 ```
 cd extern/freetype2
+./autogen.sh
 ./configure
 make
 ```
