@@ -1,44 +1,51 @@
-/*******************************************************************
- ** This code is part of Breakout.
- **
- ** Breakout is free software: you can redistribute it and/or modify
- ** it under the terms of the CC BY 4.0 license as published by
- ** Creative Commons, either version 4 of the License, or (at your
- ** option) any later version.
- ******************************************************************/
-#include <breakout/post-processor.hpp>
-
-#include <iostream>
+#include <pangolin/post-processor.hpp>
 
 PostProcessor::PostProcessor(
-  Shader shader, unsigned int width,
+  Shader& shader, unsigned int width,
   unsigned int height) 
-  : PostProcessingShader(shader),
-  Texture(), Width(width),
-  Height(height), Confuse(false),
-  Chaos(false), Shake(false)
+  : 
+    post_processing_shader(shader),
+    texture(), width(width),
+    height(height), confuse(false),
+    chaos(false), shake(false)
 {
   // initialize renderbuffer/framebuffer object
-  glGenFramebuffers(1, &this->MSFBO);
-  glGenFramebuffers(1, &this->FBO);
-  glGenRenderbuffers(1, &this->RBO);
-  // initialize renderbuffer storage with a multisampled color buffer (don't need a depth/stencil buffer)
+  glGenFramebuffers(1, &MSFBO);
+  glGenFramebuffers(1, &FBO);
+  glGenRenderbuffers(1, &RBO);
+  
+  // initialize renderbuffer storage with a multisampled color buffer (don't
+  // need a depth/stencil buffer)
   glBindFramebuffer(GL_FRAMEBUFFER, this->MSFBO);
   glBindRenderbuffer(GL_RENDERBUFFER, this->RBO);
-  glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_RGB, width, height); // allocate storage for render buffer object
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, this->RBO); // attach MS render buffer object to framebuffer
+
+  // allocate storage for render buffer object
+  glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_RGB, width, height);
+
+  // attach MS render buffer object to framebuffer
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, this->RBO);
+
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     std::cout << "ERROR::POSTPROCESSOR: Failed to initialize MSFBO" << std::endl;
-  // also initialize the FBO/texture to blit multisampled color-buffer to; used for shader operations (for postprocessing effects)
+
+  // also initialize the FBO/texture to blit multisampled color-buffer to; used
+  // for shader operations (for postprocessing effects)
   glBindFramebuffer(GL_FRAMEBUFFER, this->FBO);
-  this->Texture.generate(width, height, nullptr);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->Texture.ID, 0); // attach texture to framebuffer as its color attachment
+  texture.generate(width, height, nullptr);
+
+  // attach texture to framebuffer as its color attachment
+  glFramebufferTexture2D(
+    GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+    GL_TEXTURE_2D, texture.id, 0
+  );
+
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     std::cout << "ERROR::POSTPROCESSOR: Failed to initialize FBO" << std::endl;
+
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   // initialize render data and uniforms
-  this->initRenderData();
-  this->PostProcessingShader.setInteger("scene", 0);
+  init_render_data();
+  post_processing_shader.setInteger("scene", 0);
   float offset = 1.0f / 300.0f;
   float offsets[9][2] = {
     { -offset,  offset  },  // top-left
@@ -51,50 +58,64 @@ PostProcessor::PostProcessor(
     {  0.0f,   -offset  },  // bottom-center
     {  offset, -offset  }   // bottom-right    
   };
-  glUniform2fv(glGetUniformLocation(this->PostProcessingShader.ID, "offsets"), 9, (float*)offsets);
+
+  glUniform2fv(
+    glGetUniformLocation(post_processing_shader.id, "offsets"),
+    9, (float*)offsets
+  );
+
   int edge_kernel[9] = {
     -1, -1, -1,
     -1,  8, -1,
     -1, -1, -1
   };
-  glUniform1iv(glGetUniformLocation(this->PostProcessingShader.ID, "edge_kernel"), 9, edge_kernel);
+
+  glUniform1iv(glGetUniformLocation(post_processing_shader.id, "edge_kernel"), 9, edge_kernel);
   float blur_kernel[9] = {
     1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f,
     2.0f / 16.0f, 4.0f / 16.0f, 2.0f / 16.0f,
     1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f
   };
-  glUniform1fv(glGetUniformLocation(this->PostProcessingShader.ID, "blur_kernel"), 9, blur_kernel);    
+  glUniform1fv(glGetUniformLocation(post_processing_shader.id, "blur_kernel"), 9, blur_kernel);    
 }
 
-void PostProcessor::BeginRender() {
-  glBindFramebuffer(GL_FRAMEBUFFER, this->MSFBO);
+void PostProcessor::begin_render() {
+  glBindFramebuffer(GL_FRAMEBUFFER, MSFBO);
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 }
-void PostProcessor::EndRender() {
-  // now resolve multisampled color-buffer into intermediate FBO to store to texture
+
+void PostProcessor::end_render() {
+  // now resolve multisampled color-buffer into intermediate FBO to store to
+  // texture
+  //
   glBindFramebuffer(GL_READ_FRAMEBUFFER, this->MSFBO);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->FBO);
-  glBlitFramebuffer(0, 0, this->Width, this->Height, 0, 0, this->Width, this->Height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-  glBindFramebuffer(GL_FRAMEBUFFER, 0); // binds both READ and WRITE framebuffer to default framebuffer
+  glBlitFramebuffer(
+    0, 0, width, height, 0, 0, width, height,
+    GL_COLOR_BUFFER_BIT, GL_NEAREST
+  );
+
+  // binds both READ and WRITE framebuffer to default framebuffer
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void PostProcessor::Render(float time) {
+void PostProcessor::render(float time) {
   // set uniforms/options
-  this->PostProcessingShader.use();
-  this->PostProcessingShader.setFloat("time", time);
-  this->PostProcessingShader.setInteger("confuse", this->Confuse);
-  this->PostProcessingShader.setInteger("chaos", this->Chaos);
-  this->PostProcessingShader.setInteger("shake", this->Shake);
+  post_processing_shader.use();
+  post_processing_shader.setFloat("time", time);
+  post_processing_shader.setInteger("confuse", confuse);
+  post_processing_shader.setInteger("chaos", chaos);
+  post_processing_shader.setInteger("shake", shake);
   // render textured quad
   glActiveTexture(GL_TEXTURE0);
-  this->Texture.bind();	
+  texture.bind();	
   glBindVertexArray(this->VAO);
   glDrawArrays(GL_TRIANGLES, 0, 6);
   glBindVertexArray(0);
 }
 
-void PostProcessor::initRenderData() {
+void PostProcessor::init_render_data() {
   // configure VAO/VBO
   unsigned int VBO;
   float vertices[] = {
@@ -115,7 +136,7 @@ void PostProcessor::initRenderData() {
 
   glBindVertexArray(this->VAO);
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*)0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
 }

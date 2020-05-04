@@ -1,18 +1,10 @@
-/*******************************************************************
- ** This code is part of Breakout.
- **
- ** Breakout is free software: you can redistribute it and/or modify
- ** it under the terms of the CC BY 4.0 license as published by
- ** Creative Commons, either version 4 of the License, or (at your
- ** option) any later version.
- ******************************************************************/
 #pragma once
 
 #include <glm/glm.hpp>
 #include <pangolin/glfw-support.hpp>
 
 #include <pangolin/texture.hpp>
-#include <breakout/sprite-renderer.hpp>
+#include <pangolin/sprite-renderer.hpp>
 #include <pangolin/shader.hpp>
 
 #include <iostream>
@@ -27,24 +19,24 @@
 class PostProcessor {
   public:
     // state
-    Shader PostProcessingShader;
-    Texture2D Texture;
-    unsigned int Width, Height;
+    Shader post_processing_shader;
+    Texture2D texture;
+    unsigned int width, height;
     // options
-    bool Confuse, Chaos, Shake;
+    bool confuse, chaos, shake;
     // constructor
-    PostProcessor(Shader shader, unsigned int width, unsigned int height);
+    PostProcessor(Shader& shader, unsigned int width, unsigned int height);
     // prepares the postprocessor's framebuffer operations before rendering the game
-    void BeginRender();
+    void begin_render();
     // should be called after rendering the game, so it stores all the rendered data into a texture object
-    void EndRender();
+    void end_render();
     // renders the PostProcessor texture quad (as a screen-encompassing large sprite)
-    void Render(float time);
+    void render(float time);
   private:
     // render state
     unsigned int MSFBO, FBO; // MSFBO = Multisampled FBO. FBO is regular, used for blitting MS color-buffer to texture
     unsigned int RBO; // RBO is used for multisampled color buffer
     unsigned int VAO;
     // initialize quad for rendering postprocessing texture
-    void initRenderData();
+    void init_render_data();
 };
