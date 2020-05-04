@@ -9,6 +9,7 @@
 #include <breakout/particle-generator.hpp>
 #include <breakout/post-processor.hpp>
 #include <breakout/power-up.hpp>
+#include <breakout/text-renderer.hpp>
 
 #include <irrKlang.h> 
 #include <algorithm>
@@ -46,7 +47,9 @@ class Game {
     unsigned int m_level;
     GameState m_state;
     bool m_keys[1024];
+    bool m_key_processed[1024];
     unsigned int width, height;
+    unsigned int m_lives;
 
     Game(unsigned int width, unsigned int height);
     ~Game();

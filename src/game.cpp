@@ -6,7 +6,7 @@ const glm::vec2 PLAYER_SIZE(100.0f, 20.0f);
 const GLfloat PLAYER_VELOCITY(500.0f);
 
 // Initial velocity of the Ball
-const glm::vec2 INITIAL_BALL_VELOCITY(100.0f, -550.0f);
+const glm::vec2 INITIAL_BALL_VELOCITY(100.0f, -250.0f);
 // Radius of the ball object
 const float BALL_RADIUS = 12.5f;
 
@@ -15,6 +15,7 @@ BallObject*        ball;
 SpriteRenderer*    renderer;
 ParticleGenerator* particles;
 PostProcessor*     effects;
+TextRenderer*      text;
 
 irrklang::ISoundEngine* sound_engine = irrklang::createIrrKlangDevice();
 
@@ -27,14 +28,17 @@ Game::Game(unsigned int width, unsigned int height)
 }
 
 Game::~Game() {
-  delete renderer;
-  delete player;
-  delete ball;
-  delete particles;
-  delete effects;
+  /* delete renderer; */
+  /* delete player; */
+  /* delete ball; */
+  /* delete particles; */
+  /* delete effects; */
+  /* delete text; */
+  /* delete sound_engine; */
 }
 
 void Game::init() {
+  m_lives = 3;
   // load shaders
   ResourceManager::load_shader(
     "../../resources/shaders/sprite.vs",
@@ -97,6 +101,8 @@ void Game::init() {
                                             -BALL_RADIUS * 2.0f);
   ball = new BallObject(ball_pos, BALL_RADIUS, INITIAL_BALL_VELOCITY,
                         ResourceManager::get_texture("face"));
+  text = new TextRenderer(width, height);
+  text->Load("../../resources/fonts/ocraext.TTF", 24);
 
   particles = new ParticleGenerator(
     ResourceManager::get_shader("particle"), 
@@ -119,13 +125,24 @@ void Game::update(float dt) {
   update_power_ups(dt);
 
   if (ball->m_position.y >= height) { // did ball reach bottom edge?
+    --m_lives;
+    if (m_lives == 0) {
+      reset_level();
+      m_state = GAME_MENU;
+    }
+    reset_player();
+  }
+
+  if (m_state == GAME_ACTIVE && m_levels[m_level].isCompleted()) {
     reset_level();
     reset_player();
+    effects->Chaos = true;
+    m_state = GAME_WIN;
   }
 }
 
 void Game::render() {
-  if(m_state == GAME_ACTIVE) {
+  if(m_state == GAME_ACTIVE || m_state == GAME_MENU) {
     // draw background
     effects->BeginRender();
     renderer->draw(ResourceManager::get_texture("background"),
@@ -140,6 +157,21 @@ void Game::render() {
     ball->draw(*renderer);
     effects->EndRender();
     effects->Render(glfwGetTime());
+
+    std::stringstream ss; ss << m_lives;
+    text->RenderText("Lives:" + ss.str(), 5.0f, 5.0f, 1.0f);
+  }
+  if (m_state == GAME_MENU) {
+    text->RenderText("Press ENTER to start", 250.0f, height / 2, 1.0f);
+    text->RenderText("Press W or S to select level", 245.0f, height / 2 + 20.0f, 0.75f);
+  }
+  if (m_state == GAME_WIN) {
+    text->RenderText(
+      "You WON!!!", 320.0, height / 2 - 20.0, 1.0, glm::vec3(0.0, 1.0, 0.0)
+      );
+    text->RenderText(
+      "Press ENTER to retry or ESC to quit", 130.0, height / 2, 1.0, glm::vec3(1.0, 1.0, 0.0)
+      );
   }
 }
 
@@ -176,6 +208,7 @@ void Game::spawn_power_ups(GameObject& block) {
 }
 
 void Game::reset_level() {
+  m_lives = 3;
   if (m_level == 0)
     m_levels[0].load("../../resources/levels/one.lvl", width, height / 2);
   else if (m_level == 1)
@@ -216,6 +249,32 @@ void Game::process_input(float dt) {
     }
     if (m_keys[GLFW_KEY_SPACE])
       ball->m_stuck = false;
+  }
+
+  if (m_state == GAME_MENU && !m_key_processed[GLFW_KEY_ENTER]) {
+    if (m_keys[GLFW_KEY_ENTER]) {
+      m_state = GAME_ACTIVE;
+      m_key_processed[GLFW_KEY_ENTER] = true;
+    }
+    if (m_keys[GLFW_KEY_W] && !m_key_processed[GLFW_KEY_W]) {
+      m_level = (m_level + 1) % 4;
+      m_key_processed[GLFW_KEY_W] = true;
+    }
+    if (m_keys[GLFW_KEY_S] && !m_key_processed[GLFW_KEY_W]) {
+      if (m_level > 0)
+        --m_level;
+      else
+        m_level = 3;   
+      m_key_processed[GLFW_KEY_S] = true;
+    }
+  }
+
+  if (m_state == GAME_WIN) {
+    if (m_keys[GLFW_KEY_ENTER]) {
+      m_key_processed[GLFW_KEY_ENTER] = true;
+      effects->Chaos = false;
+      m_state = GAME_MENU;
+    }
   }
 }
 
@@ -268,7 +327,7 @@ void Game::process_collisions() {
         ActivatePowerUp(powerUp);
         powerUp.m_destroyed = true;
         powerUp.Activated = true;
-        sound_engine->play2D("../../resources/sound/powerup.wav", true);
+        sound_engine->play2D("../../resources/sound/powerup.wav", false);
       }
     }
   }
