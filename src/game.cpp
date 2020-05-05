@@ -225,7 +225,7 @@ void Game::reset_player() {
   player->position = glm::vec2(width / 2.0f - PLAYER_SIZE.x / 2.0f, height - PLAYER_SIZE.y);
   ball->reset(
     player->position + glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS,
-                                   -(BALL_RADIUS * 2.0f)),
+                                 -(BALL_RADIUS * 2.0f)),
     INITIAL_BALL_VELOCITY);
 }
 

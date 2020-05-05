@@ -42,8 +42,8 @@ glm::vec2 BallObject::move(float dt, unsigned int window_width) {
 
 // resets the ball to initial Stuck Position (if ball is outside window bounds)
 void BallObject::reset(glm::vec2 position, glm::vec2 velocity) {
-  position = position;
-  velocity = velocity;
+  this->position = position;
+  this->velocity = velocity;
   stuck = true;
   sticky = false;
   pass_through = false;

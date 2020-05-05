@@ -46,6 +46,7 @@ PostProcessor::PostProcessor(
   // initialize render data and uniforms
   init_render_data();
   post_processing_shader.setInteger("scene", 0);
+  post_processing_shader.use();
   float offset = 1.0f / 300.0f;
   float offsets[9][2] = {
     { -offset,  offset  },  // top-left
@@ -72,11 +73,11 @@ PostProcessor::PostProcessor(
 
   glUniform1iv(glGetUniformLocation(post_processing_shader.id, "edge_kernel"), 9, edge_kernel);
   float blur_kernel[9] = {
-    1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f,
-    2.0f / 16.0f, 4.0f / 16.0f, 2.0f / 16.0f,
-    1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f
+    1.0f/16.0f, 2.0f/16.0f, 1.0f/16.0f,
+    2.0f/16.0f, 4.0f/16.0f, 2.0f/16.0f,
+    1.0f/16.0f, 2.0f/16.0f, 1.0f/16.0f
   };
-  glUniform1fv(glGetUniformLocation(post_processing_shader.id, "blur_kernel"), 9, blur_kernel);    
+  glUniform1fv(glGetUniformLocation(post_processing_shader.id, "blur_kernel"), 9, blur_kernel);
 }
 
 void PostProcessor::begin_render() {
@@ -88,7 +89,6 @@ void PostProcessor::begin_render() {
 void PostProcessor::end_render() {
   // now resolve multisampled color-buffer into intermediate FBO to store to
   // texture
-  //
   glBindFramebuffer(GL_READ_FRAMEBUFFER, this->MSFBO);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->FBO);
   glBlitFramebuffer(
@@ -121,12 +121,12 @@ void PostProcessor::init_render_data() {
   float vertices[] = {
     // pos        // tex
     -1.0f, -1.0f, 0.0f, 0.0f,
-    1.0f,  1.0f, 1.0f, 1.0f,
+     1.0f,  1.0f, 1.0f, 1.0f,
     -1.0f,  1.0f, 0.0f, 1.0f,
 
     -1.0f, -1.0f, 0.0f, 0.0f,
-    1.0f, -1.0f, 1.0f, 0.0f,
-    1.0f,  1.0f, 1.0f, 1.0f
+     1.0f, -1.0f, 1.0f, 0.0f,
+     1.0f,  1.0f, 1.0f, 1.0f
   };
   glGenVertexArrays(1, &this->VAO);
   glGenBuffers(1, &VBO);
