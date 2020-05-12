@@ -10,13 +10,13 @@
 class GameLevel {
   public:
     // level state
-    std::vector<GameObject> bricks;
+    std::vector<pgl::GameObject> bricks;
     // constructor
     GameLevel() { }
     // loads level from file
     void load(const char *file, unsigned int levelWidth, unsigned int levelHeight);
     // render level
-    void draw(SpriteRenderer &renderer);
+    void draw(pgl::render2D::SpriteRenderer &renderer);
     // check if the level is completed (all non-solid tiles are destroyed)
     bool isCompleted();
   private:

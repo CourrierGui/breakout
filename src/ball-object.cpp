@@ -7,7 +7,8 @@ BallObject::BallObject()
 
 BallObject::BallObject(
   glm::vec2 pos, float radius,
-  glm::vec2 velocity, Texture2D sprite)
+  glm::vec2 velocity,
+  pgl::resources::Texture2D sprite)
   : GameObject(pos, glm::vec2(radius * 2.0f, radius * 2.0f),
                sprite, glm::vec3(1.0f), velocity),
   radius(radius),

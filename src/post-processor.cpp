@@ -1,7 +1,7 @@
-#include <pangolin/post-processor.hpp>
+#include <breakout/post-processor.hpp>
 
 PostProcessor::PostProcessor(
-  Shader& shader, unsigned int width,
+  pgl::resources::Shader& shader, unsigned int width,
   unsigned int height) 
   : 
     post_processing_shader(shader),

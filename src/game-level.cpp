@@ -44,9 +44,9 @@ void GameLevel::init(
       if (tile_data[y][x] == 1) { // solid
         glm::vec2 pos(unit_width * x, unit_height * y);
         glm::vec2 size(unit_width, unit_height);
-        GameObject obj(
+        pgl::GameObject obj(
           pos, size, 
-          ResourceManager::get_texture("block_solid"), 
+          pgl::resources::ResourceManager::get_texture("block_solid"), 
           glm::vec3(0.8f, 0.8f, 0.7f));
         obj.is_solid = true;
         bricks.push_back(obj);
@@ -65,20 +65,20 @@ void GameLevel::init(
         glm::vec2 pos(unit_width * x, unit_height * y);
         glm::vec2 size(unit_width, unit_height);
         bricks.push_back(
-          GameObject(pos, size, ResourceManager::get_texture("block"), color));
+          pgl::GameObject(pos, size, pgl::resources::ResourceManager::get_texture("block"), color));
       }
     }
   }  
 }
 
-void GameLevel::draw(SpriteRenderer& renderer) {
-  for (GameObject& tile : bricks)
+void GameLevel::draw(pgl::render2D::SpriteRenderer& renderer) {
+  for (pgl::GameObject& tile : bricks)
     if (!tile.destroyed)
       tile.draw(renderer);
 }
 
 bool GameLevel::isCompleted() {
-  for (GameObject& tile : bricks)
+  for (pgl::GameObject& tile : bricks)
     if (!tile.is_solid && !tile.destroyed)
       return false;
   return true;

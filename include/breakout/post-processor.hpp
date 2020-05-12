@@ -1,8 +1,8 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <pangolin/glfw-support.hpp>
 
+#include <pangolin/glfw-support.hpp>
 #include <pangolin/texture.hpp>
 #include <pangolin/sprite-renderer.hpp>
 #include <pangolin/shader.hpp>
@@ -19,13 +19,16 @@
 class PostProcessor {
   public:
     // state
-    Shader post_processing_shader;
-    Texture2D texture;
+    pgl::resources::Shader post_processing_shader;
+    pgl::resources::Texture2D texture;
     unsigned int width, height;
     // options
     bool confuse, chaos, shake;
     // constructor
-    PostProcessor(Shader& shader, unsigned int width, unsigned int height);
+    PostProcessor(
+      pgl::resources::Shader& shader,
+      unsigned int width, unsigned int height
+    );
     // prepares the postprocessor's framebuffer operations before rendering the game
     void begin_render();
     // should be called after rendering the game, so it stores all the rendered data into a texture object

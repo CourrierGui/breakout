@@ -5,6 +5,7 @@
 #include <pangolin/sprite-renderer.hpp>
 #include <pangolin/particle-generator.hpp>
 #include <pangolin/text-renderer.hpp>
+#include <pangolin/game-object.hpp>
 
 #include <breakout/game-level.hpp>
 #include <breakout/ball-object.hpp>
@@ -33,8 +34,8 @@ const unsigned int GOOD_RATE = 30;
 
 using Collision = std::tuple<bool, Direction, glm::vec2>;
 
-bool CheckCollision(GameObject& one, GameObject& two);
-Collision CheckCollision(BallObject& one, GameObject& two);
+bool CheckCollision(pgl::GameObject& one, pgl::GameObject& two);
+Collision CheckCollision(BallObject& one, pgl::GameObject& two);
 Direction vector_direction(glm::vec2 target);
 bool should_spawn(unsigned int chance);
 void ActivatePowerUp(PowerUp& powerUp);
@@ -61,6 +62,6 @@ class Game {
     void process_input(float dt);
     void reset_level();
     void reset_player();
-    void spawn_power_ups(GameObject& block);
+    void spawn_power_ups(pgl::GameObject& block);
     void update_power_ups(float dt);
 };

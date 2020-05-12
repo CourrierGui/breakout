@@ -56,6 +56,7 @@ int main(int argc, char *argv[]) {
 
   // initialize game
   // ---------------
+  pgl::resources::set_root("/home/guillaume/dev/breakout");
   Breakout.init();
 
   // deltaTime variables
@@ -94,7 +95,7 @@ int main(int argc, char *argv[]) {
 
   // delete all resources as loaded using the resource manager
   // ---------------------------------------------------------
-  ResourceManager::clear();
+  pgl::resources::ResourceManager::clear();
 
   glfwTerminate();
   return 0;
