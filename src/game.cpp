@@ -52,6 +52,12 @@ void Game::init() {
     "../resources/shaders/postprocessor.vs",
     "../resources/shaders/postprocessor.fs",
     "", "postprocessing");
+  pgl::resources::ResourceManager::load_shader(
+    "../resources/shaders/text.vs",
+    "../resources/shaders/text.fs",
+    "", "text"
+  );
+
 
   // configure shaders
   glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(width),
@@ -101,7 +107,7 @@ void Game::init() {
                                             -BALL_RADIUS * 2.0f);
   ball = new BallObject(ball_pos, BALL_RADIUS, INITIAL_BALL_VELOCITY,
                         pgl::resources::ResourceManager::get_texture("face"));
-  text = new pgl::text::TextRenderer(width, height);
+  text = new pgl::text::TextRenderer(width, height, pgl::resources::ResourceManager::get_shader("text"));
   text->load("../resources/fonts/ocraext.TTF", 24);
 
   particles = new pgl::ParticleGenerator(
