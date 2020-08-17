@@ -13,10 +13,10 @@ project(beat-the-boredom
 )
 
 # set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
-# set (CMAKE_CXX_STANDARD 17)
 
 find_package(pangolin REQUIRED)
 find_package(OpenAL REQUIRED)
+find_package(glfw3 REQUIRED)
 
 add_library(irrKlanglib SHARED IMPORTED)
 set_target_properties(irrKlanglib PROPERTIES
@@ -38,7 +38,7 @@ target_link_libraries(game-utils pangolin::pangolin irrKlanglib pangolin::glad)
 
 add_executable(breakout apps/breakout.cpp)
 target_include_directories(breakout PUBLIC include)
-target_link_libraries(breakout PUBLIC game-utils)
+target_link_libraries(breakout PUBLIC game-utils glfw)
 
 # add_subdirectory(docs)
 

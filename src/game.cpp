@@ -15,11 +15,11 @@ BallObject*                    ball;
 pgl::render2D::SpriteRenderer* renderer;
 pgl::ParticleGenerator*        particles;
 PostProcessor*                 effects;
-pgl::text::TextRenderer*       text;
+pgl::ui::TextRenderer*         text;
 
 irrklang::ISoundEngine* sound_engine = irrklang::createIrrKlangDevice();
 
-float shake_time = 0.0f; 
+float shake_time = 0.0f;
 
 Game::Game(unsigned int width, unsigned int height)
   : width(width), height(height)
@@ -27,32 +27,24 @@ Game::Game(unsigned int width, unsigned int height)
 
 }
 
-Game::~Game() {
-  /* delete renderer; */
-  /* delete player; */
-  /* delete ball; */
-  /* delete particles; */
-  /* delete effects; */
-  /* delete text; */
-  /* delete sound_engine; */
-}
+Game::~Game() { }
 
 void Game::init() {
   lives = 3;
   // load shaders
-  pgl::resources::ResourceManager::load_shader(
+	pgl::loader::ResourceManager::load_shader(
     "../resources/shaders/sprite.vs",
     "../resources/shaders/sprite.fs",
     "", "sprite");
-  pgl::resources::ResourceManager::load_shader(
+  pgl::loader::ResourceManager::load_shader(
     "../resources/shaders/particle.vs",
     "../resources/shaders/particle.fs",
     "", "particle");
-  pgl::resources::ResourceManager::load_shader(
+  pgl::loader::ResourceManager::load_shader(
     "../resources/shaders/postprocessor.vs",
     "../resources/shaders/postprocessor.fs",
     "", "postprocessing");
-  pgl::resources::ResourceManager::load_shader(
+  pgl::loader::ResourceManager::load_shader(
     "../resources/shaders/text.vs",
     "../resources/shaders/text.fs",
     "", "text"
@@ -62,29 +54,29 @@ void Game::init() {
   // configure shaders
   glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(width),
                                     static_cast<float>(height), 0.0f, -1.0f, 1.0f);
-  pgl::resources::ResourceManager::get_shader("sprite").use().setInteger("image", 0);
-  pgl::resources::ResourceManager::get_shader("sprite").setMatrix4("projection", projection);
-  pgl::resources::ResourceManager::get_shader("particle").use().setInteger("sprite", 0);
-  pgl::resources::ResourceManager::get_shader("particle").setMatrix4("projection", projection);
+  pgl::loader::ResourceManager::get_shader("sprite").use().setInteger("image", 0);
+  pgl::loader::ResourceManager::get_shader("sprite").setMatrix4("projection", projection);
+  pgl::loader::ResourceManager::get_shader("particle").use().setInteger("sprite", 0);
+  pgl::loader::ResourceManager::get_shader("particle").setMatrix4("projection", projection);
   // set render-specific controls
-  renderer = new pgl::render2D::SpriteRenderer(pgl::resources::ResourceManager::get_shader("sprite"));
-  effects = new PostProcessor(pgl::resources::ResourceManager::get_shader("postprocessing"),
+  renderer = new pgl::render2D::SpriteRenderer(pgl::loader::ResourceManager::get_shader("sprite"));
+  effects = new PostProcessor(pgl::loader::ResourceManager::get_shader("postprocessing"),
                               width, height);
   sound_engine->play2D("../resources/sound/breakout.mp3", true);
 
   // load textures
-  pgl::resources::ResourceManager::load_texture("../resources/textures/background.jpg",          false, "background");
-  pgl::resources::ResourceManager::load_texture("../resources/textures/awesomeface.png",         true,  "face");
-  pgl::resources::ResourceManager::load_texture("../resources/textures/block.png",               false, "block");
-  pgl::resources::ResourceManager::load_texture("../resources/textures/block_solid.png",         false, "block_solid");
-  pgl::resources::ResourceManager::load_texture("../resources/textures/paddle.png",              true,  "paddle");
-  pgl::resources::ResourceManager::load_texture("../resources/textures/particle.png",            true,  "particle"); 
-  pgl::resources::ResourceManager::load_texture("../resources/textures/powerup_speed.png",       true,  "powerup_speed");
-  pgl::resources::ResourceManager::load_texture("../resources/textures/powerup_sticky.png",      true,  "powerup_sticky");
-  pgl::resources::ResourceManager::load_texture("../resources/textures/powerup_increase.png",    true,  "powerup_increase");
-  pgl::resources::ResourceManager::load_texture("../resources/textures/powerup_confuse.png",     true,  "powerup_confuse");
-  pgl::resources::ResourceManager::load_texture("../resources/textures/powerup_chaos.png",       true,  "powerup_chaos");
-  pgl::resources::ResourceManager::load_texture("../resources/textures/powerup_passthrough.png", true,  "powerup_passthrough");
+  pgl::loader::ResourceManager::load_texture("../resources/textures/background.jpg",          false, "background");
+  pgl::loader::ResourceManager::load_texture("../resources/textures/awesomeface.png",         true,  "face");
+  pgl::loader::ResourceManager::load_texture("../resources/textures/block.png",               false, "block");
+  pgl::loader::ResourceManager::load_texture("../resources/textures/block_solid.png",         false, "block_solid");
+  pgl::loader::ResourceManager::load_texture("../resources/textures/paddle.png",              true,  "paddle");
+  pgl::loader::ResourceManager::load_texture("../resources/textures/particle.png",            true,  "particle");
+  pgl::loader::ResourceManager::load_texture("../resources/textures/powerup_speed.png",       true,  "powerup_speed");
+  pgl::loader::ResourceManager::load_texture("../resources/textures/powerup_sticky.png",      true,  "powerup_sticky");
+  pgl::loader::ResourceManager::load_texture("../resources/textures/powerup_increase.png",    true,  "powerup_increase");
+  pgl::loader::ResourceManager::load_texture("../resources/textures/powerup_confuse.png",     true,  "powerup_confuse");
+  pgl::loader::ResourceManager::load_texture("../resources/textures/powerup_chaos.png",       true,  "powerup_chaos");
+  pgl::loader::ResourceManager::load_texture("../resources/textures/powerup_passthrough.png", true,  "powerup_passthrough");
 
   // load levels
   GameLevel one;   one.load  ("../resources/levels/one.lvl",   width, height / 2);
@@ -101,18 +93,18 @@ void Game::init() {
     width / 2.0f - PLAYER_SIZE.x / 2.0f,
     height - PLAYER_SIZE.y
   );
-  player = new pgl::GameObject(player_pos, PLAYER_SIZE, pgl::resources::ResourceManager::get_texture("paddle"));
+  player = new pgl::GameObject(player_pos, PLAYER_SIZE, pgl::loader::ResourceManager::get_texture("paddle"));
 
   glm::vec2 ball_pos = player_pos + glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS,
                                             -BALL_RADIUS * 2.0f);
   ball = new BallObject(ball_pos, BALL_RADIUS, INITIAL_BALL_VELOCITY,
-                        pgl::resources::ResourceManager::get_texture("face"));
-  text = new pgl::text::TextRenderer(width, height, pgl::resources::ResourceManager::get_shader("text"));
+                        pgl::loader::ResourceManager::get_texture("face"));
+  text = new pgl::ui::TextRenderer(width, height, pgl::loader::ResourceManager::get_shader("text"));
   text->load("../resources/fonts/ocraext.TTF", 24);
 
   particles = new pgl::ParticleGenerator(
-    pgl::resources::ResourceManager::get_shader("particle"), 
-    pgl::resources::ResourceManager::get_texture("particle"), 
+    pgl::loader::ResourceManager::get_shader("particle"),
+    pgl::loader::ResourceManager::get_texture("particle"),
     500
   );
 }
@@ -151,12 +143,12 @@ void Game::render() {
   if(state == GAME_ACTIVE || state == GAME_MENU) {
     // draw background
     effects->begin_render();
-    renderer->draw(pgl::resources::ResourceManager::get_texture("background"),
+    renderer->draw(pgl::loader::ResourceManager::get_texture("background"),
                    glm::vec2(0.0f, 0.0f), glm::vec2(width, height), 0.0f);
     // draw level
     levels[level].draw(*renderer);
     player->draw(*renderer);
-    particles->draw(); 
+    particles->draw();
     for (PowerUp &powerUp : power_ups)
       if (!powerUp.destroyed)
         powerUp.draw(*renderer);
@@ -190,27 +182,27 @@ void Game::spawn_power_ups(pgl::GameObject& block) {
   if (should_spawn(GOOD_RATE)) // 1 in GOOD_RATE chance
     power_ups.push_back(
       PowerUp("speed", glm::vec3(0.5f, 0.5f, 1.0f), 0.0f,
-              block.position, pgl::resources::ResourceManager::get_texture("powerup_speed")));
+              block.position, pgl::loader::ResourceManager::get_texture("powerup_speed")));
   if (should_spawn(GOOD_RATE))
     power_ups.push_back(
       PowerUp("sticky", glm::vec3(1.0f, 0.5f, 1.0f), 20.0f,
-              block.position, pgl::resources::ResourceManager::get_texture("powerup_sticky")));
+              block.position, pgl::loader::ResourceManager::get_texture("powerup_sticky")));
   if (should_spawn(GOOD_RATE))
       power_ups.push_back(
         PowerUp("pass-through", glm::vec3(0.5f, 1.0f, 0.5f), 10.0f,
-                block.position, pgl::resources::ResourceManager::get_texture("powerup_passthrough")));
+                block.position, pgl::loader::ResourceManager::get_texture("powerup_passthrough")));
   if (should_spawn(GOOD_RATE))
   power_ups.push_back(
         PowerUp("pad-size-increase", glm::vec3(1.0f, 0.6f, 0.4), 0.0f,
-                block.position, pgl::resources::ResourceManager::get_texture("powerup_increase")));
+                block.position, pgl::loader::ResourceManager::get_texture("powerup_increase")));
   if (should_spawn(BAD_RATE)) // negative powerups should spawn more often
     power_ups.push_back(
       PowerUp("confuse", glm::vec3(1.0f, 0.3f, 0.3f), 5.0f,
-              block.position, pgl::resources::ResourceManager::get_texture("powerup_confuse")));
+              block.position, pgl::loader::ResourceManager::get_texture("powerup_confuse")));
   if (should_spawn(BAD_RATE))
     power_ups.push_back(
       PowerUp("chaos", glm::vec3(0.9f, 0.25f, 0.25f), 5.0f,
-              block.position, pgl::resources::ResourceManager::get_texture("powerup_chaos")));
+              block.position, pgl::loader::ResourceManager::get_texture("powerup_chaos")));
 }
 
 void Game::reset_level() {
@@ -270,7 +262,7 @@ void Game::process_input(float dt) {
       if (level > 0)
         --level;
       else
-        level = 3;   
+        level = 3;
       key_processed[GLFW_KEY_S] = true;
     }
   }
@@ -350,7 +342,7 @@ void Game::process_collisions() {
     float strength = 2.0f;
     glm::vec2 oldvelocity = ball->velocity;
     ball->velocity.x = INITIAL_BALL_VELOCITY.x * percentage * strength;
-    ball->velocity.y = -1.0f * std::abs(ball->velocity.y);  
+    ball->velocity.y = -1.0f * std::abs(ball->velocity.y);
     ball->velocity = glm::normalize(ball->velocity) * glm::length(oldvelocity);
     sound_engine->play2D("../resources/sound/bleep.wav", false);
   }
@@ -379,7 +371,7 @@ void ActivatePowerUp(PowerUp& powerUp) {
     if (!effects->confuse)
       effects->chaos = true;
   }
-} 
+}
 
 void Game::update_power_ups(float dt) {
   for (PowerUp &powerUp : power_ups) {
@@ -416,7 +408,7 @@ void Game::update_power_ups(float dt) {
             // only reset if no other PowerUp of type chaos is active
             effects->chaos = false;
           }
-        }                
+        }
       }
     }
   }
@@ -437,7 +429,7 @@ bool isOtherPowerUpActive(std::vector<PowerUp>& powerUps, std::string type) {
         return true;
   }
   return false;
-} 
+}
 
 bool CheckCollision(pgl::GameObject& one, pgl::GameObject& two) { // AABB - AABB collision
   // Collision x-axis?

@@ -14,7 +14,7 @@ class BallObject : public pgl::GameObject {
     BallObject(
       glm::vec2 pos, float radius,
       glm::vec2 velocity,
-      pgl::resources::Texture2D sprite
+      pgl::loader::Texture2D sprite
     );
 
     glm::vec2 move(float dt, unsigned int window_width);
