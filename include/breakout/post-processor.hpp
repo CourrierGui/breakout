@@ -11,22 +11,22 @@
 
 // PostProcessor hosts all PostProcessing effects for the Breakout
 // Game. It renders the game on a textured quad after which one can
-// enable specific effects by enabling either the Confuse, Chaos or 
-// Shake boolean. 
+// enable specific effects by enabling either the Confuse, Chaos or
+// Shake boolean.
 // It is required to call BeginRender() before rendering the game
 // and EndRender() after rendering the game for the class to work.
 
 class PostProcessor {
   public:
     // state
-    pgl::resources::Shader post_processing_shader;
-    pgl::resources::Texture2D texture;
+    pgl::loader::Shader post_processing_shader;
+    pgl::loader::Texture2D texture;
     unsigned int width, height;
     // options
     bool confuse, chaos, shake;
     // constructor
     PostProcessor(
-      pgl::resources::Shader& shader,
+      pgl::loader::Shader& shader,
       unsigned int width, unsigned int height
     );
     // prepares the postprocessor's framebuffer operations before rendering the game

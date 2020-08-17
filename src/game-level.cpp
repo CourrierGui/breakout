@@ -46,7 +46,7 @@ void GameLevel::init(
         glm::vec2 size(unit_width, unit_height);
         pgl::GameObject obj(
           pos, size, 
-          pgl::resources::ResourceManager::get_texture("block_solid"), 
+          pgl::loader::ResourceManager::get_texture("block_solid"), 
           glm::vec3(0.8f, 0.8f, 0.7f));
         obj.is_solid = true;
         bricks.push_back(obj);
@@ -65,7 +65,7 @@ void GameLevel::init(
         glm::vec2 pos(unit_width * x, unit_height * y);
         glm::vec2 size(unit_width, unit_height);
         bricks.push_back(
-          pgl::GameObject(pos, size, pgl::resources::ResourceManager::get_texture("block"), color));
+          pgl::GameObject(pos, size, pgl::loader::ResourceManager::get_texture("block"), color));
       }
     }
   }  

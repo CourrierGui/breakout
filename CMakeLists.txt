@@ -8,10 +8,10 @@ endif()
 
 project(beat-the-boredom VERSION 1.0
   DESCRIPTION "Breakout game from learnopengl.com"
-  LANGUAGES CXX)
+  LANGUAGES CXX
+)
 
 # set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
-# set (CMAKE_CXX_STANDARD 17)
 
 find_package(pangolin REQUIRED)
 
@@ -31,11 +31,13 @@ target_include_directories(game-utils
     include
     extern/irrKlang/irrKlang-64bit-1.6.0/include
 )
-target_link_libraries(game-utils pangolin::pangolin irrKlanglib)
+target_link_libraries(game-utils pangolin::pangolin irrKlanglib pangolin::glad)
+
+find_package(glfw3 REQUIRED)
 
 add_executable(breakout apps/breakout.cpp)
 target_include_directories(breakout PUBLIC include)
-target_link_libraries(breakout PUBLIC game-utils)
+target_link_libraries(breakout PUBLIC game-utils glfw)
 
 # add_subdirectory(docs)
 

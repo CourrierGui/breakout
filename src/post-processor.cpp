@@ -1,9 +1,9 @@
 #include <breakout/post-processor.hpp>
 
 PostProcessor::PostProcessor(
-  pgl::resources::Shader& shader, unsigned int width,
-  unsigned int height) 
-  : 
+  pgl::loader::Shader& shader, unsigned int width,
+  unsigned int height)
+  :
     post_processing_shader(shader),
     texture(), width(width),
     height(height), confuse(false),
@@ -13,7 +13,7 @@ PostProcessor::PostProcessor(
   glGenFramebuffers(1, &MSFBO);
   glGenFramebuffers(1, &FBO);
   glGenRenderbuffers(1, &RBO);
-  
+
   // initialize renderbuffer storage with a multisampled color buffer (don't
   // need a depth/stencil buffer)
   glBindFramebuffer(GL_FRAMEBUFFER, this->MSFBO);
@@ -31,7 +31,10 @@ PostProcessor::PostProcessor(
   // also initialize the FBO/texture to blit multisampled color-buffer to; used
   // for shader operations (for postprocessing effects)
   glBindFramebuffer(GL_FRAMEBUFFER, this->FBO);
-  texture.generate(width, height, nullptr);
+	pgl::Image img;
+	img.width = width;
+	img.height = height;
+  texture.generate(img); // TODO carefull it may not be right
 
   // attach texture to framebuffer as its color attachment
   glFramebufferTexture2D(
@@ -57,7 +60,7 @@ PostProcessor::PostProcessor(
     {  offset,  0.0f    },  // center - right
     { -offset, -offset  },  // bottom-left
     {  0.0f,   -offset  },  // bottom-center
-    {  offset, -offset  }   // bottom-right    
+    {  offset, -offset  }   // bottom-right
   };
 
   glUniform2fv(
@@ -109,7 +112,7 @@ void PostProcessor::render(float time) {
   post_processing_shader.setInteger("shake", shake);
   // render textured quad
   glActiveTexture(GL_TEXTURE0);
-  texture.bind();	
+  texture.bind();
   glBindVertexArray(this->VAO);
   glDrawArrays(GL_TRIANGLES, 0, 6);
   glBindVertexArray(0);

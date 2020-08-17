@@ -12,7 +12,7 @@
 #include <breakout/post-processor.hpp>
 #include <breakout/power-up.hpp>
 
-#include <irrKlang.h> 
+#include <irrKlang.h>
 #include <algorithm>
 #include <tuple>
 
