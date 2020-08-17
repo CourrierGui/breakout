@@ -10,12 +10,12 @@ const glm::vec2 INITIAL_BALL_VELOCITY(100.0f, -250.0f);
 // Radius of the ball object
 const float BALL_RADIUS = 12.5f;
 
-pgl::GameObject*        player;
-BallObject*        ball;
-pgl::render2D::SpriteRenderer*    renderer;
-pgl::ParticleGenerator* particles;
-PostProcessor*     effects;
-pgl::text::TextRenderer*      text;
+pgl::GameObject*               player;
+BallObject*                    ball;
+pgl::render2D::SpriteRenderer* renderer;
+pgl::ParticleGenerator*        particles;
+PostProcessor*                 effects;
+pgl::text::TextRenderer*       text;
 
 irrklang::ISoundEngine* sound_engine = irrklang::createIrrKlangDevice();
 
@@ -87,10 +87,10 @@ void Game::init() {
   pgl::resources::ResourceManager::load_texture("../resources/textures/powerup_passthrough.png", true,  "powerup_passthrough");
 
   // load levels
-  GameLevel one;   one.load("../resources/levels/one.lvl",   width, height / 2);
-  GameLevel two;   two.load("../resources/levels/two.lvl",   width, height / 2);
+  GameLevel one;   one.load  ("../resources/levels/one.lvl",   width, height / 2);
+  GameLevel two;   two.load  ("../resources/levels/two.lvl",   width, height / 2);
   GameLevel three; three.load("../resources/levels/three.lvl", width, height / 2);
-  GameLevel four;  four.load("../resources/levels/four.lvl",  width, height / 2);
+  GameLevel four;  four.load ("../resources/levels/four.lvl",  width, height / 2);
   levels.push_back(one);
   levels.push_back(two);
   levels.push_back(three);
