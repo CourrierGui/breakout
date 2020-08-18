@@ -36,7 +36,7 @@ class PowerUp : public pgl::GameObject {
     PowerUp(
       std::string type, glm::vec3 color,
       float duration, glm::vec2 position,
-      pgl::loader::Texture2D texture) 
+      pgl::Texture2D texture) 
       : GameObject(position, POWERUP_SIZE,
                    texture, color, VELOCITY),
       Type(type), Duration(duration),

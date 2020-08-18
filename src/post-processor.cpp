@@ -1,7 +1,7 @@
 #include <breakout/post-processor.hpp>
 
 PostProcessor::PostProcessor(
-  pgl::loader::Shader& shader, unsigned int width,
+  pgl::Shader& shader, unsigned int width,
   unsigned int height)
   :
     post_processing_shader(shader),

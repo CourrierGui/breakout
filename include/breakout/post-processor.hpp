@@ -19,14 +19,14 @@
 class PostProcessor {
   public:
     // state
-    pgl::loader::Shader post_processing_shader;
-    pgl::loader::Texture2D texture;
+    pgl::Shader post_processing_shader;
+    pgl::Texture2D texture;
     unsigned int width, height;
     // options
     bool confuse, chaos, shake;
     // constructor
     PostProcessor(
-      pgl::loader::Shader& shader,
+      pgl::Shader& shader,
       unsigned int width, unsigned int height
     );
     // prepares the postprocessor's framebuffer operations before rendering the game

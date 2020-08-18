@@ -14,13 +14,16 @@ class GameLevel {
     // constructor
     GameLevel() { }
     // loads level from file
-    void load(const char *file, unsigned int levelWidth, unsigned int levelHeight);
+    void load(const char* file, unsigned int levelWidth, unsigned int levelHeight);
     // render level
     void draw(pgl::render2D::SpriteRenderer &renderer);
     // check if the level is completed (all non-solid tiles are destroyed)
     bool isCompleted();
+
   private:
     // initialize level from tile data
-    void init(std::vector<std::vector<unsigned int>>& tile_data, 
-              unsigned int level_width, unsigned int level_height);
+    void init(
+			std::vector<std::vector<unsigned int>>& tile_data,
+			unsigned int level_width, unsigned int level_height
+		);
 };
