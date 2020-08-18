@@ -19,7 +19,7 @@ pgl::ui::TextRenderer*         text;
 
 irrklang::ISoundEngine* sound_engine = irrklang::createIrrKlangDevice();
 
-float shake_time = 0.0f; 
+float shake_time = 0.0f;
 
 Game::Game(unsigned int width, unsigned int height)
   : width(width), height(height)
@@ -70,7 +70,7 @@ void Game::init() {
   pgl::loader::ResourceManager::load_texture("../resources/textures/block.png",               false, "block");
   pgl::loader::ResourceManager::load_texture("../resources/textures/block_solid.png",         false, "block_solid");
   pgl::loader::ResourceManager::load_texture("../resources/textures/paddle.png",              true,  "paddle");
-  pgl::loader::ResourceManager::load_texture("../resources/textures/particle.png",            true,  "particle"); 
+  pgl::loader::ResourceManager::load_texture("../resources/textures/particle.png",            true,  "particle");
   pgl::loader::ResourceManager::load_texture("../resources/textures/powerup_speed.png",       true,  "powerup_speed");
   pgl::loader::ResourceManager::load_texture("../resources/textures/powerup_sticky.png",      true,  "powerup_sticky");
   pgl::loader::ResourceManager::load_texture("../resources/textures/powerup_increase.png",    true,  "powerup_increase");
@@ -79,10 +79,10 @@ void Game::init() {
   pgl::loader::ResourceManager::load_texture("../resources/textures/powerup_passthrough.png", true,  "powerup_passthrough");
 
   // load levels
-  GameLevel one;   one.load("../resources/levels/one.lvl",   width, height / 2);
-  GameLevel two;   two.load("../resources/levels/two.lvl",   width, height / 2);
+  GameLevel one;   one.load  ("../resources/levels/one.lvl",   width, height / 2);
+  GameLevel two;   two.load  ("../resources/levels/two.lvl",   width, height / 2);
   GameLevel three; three.load("../resources/levels/three.lvl", width, height / 2);
-  GameLevel four;  four.load("../resources/levels/four.lvl",  width, height / 2);
+  GameLevel four;  four.load ("../resources/levels/four.lvl",  width, height / 2);
   levels.push_back(one);
   levels.push_back(two);
   levels.push_back(three);
@@ -103,8 +103,8 @@ void Game::init() {
   text->load("../resources/fonts/ocraext.TTF", 24);
 
   particles = new pgl::ParticleGenerator(
-    pgl::loader::ResourceManager::get_shader("particle"), 
-    pgl::loader::ResourceManager::get_texture("particle"), 
+    pgl::loader::ResourceManager::get_shader("particle"),
+    pgl::loader::ResourceManager::get_texture("particle"),
     500
   );
 }
@@ -148,7 +148,7 @@ void Game::render() {
     // draw level
     levels[level].draw(*renderer);
     player->draw(*renderer);
-    particles->draw(); 
+    particles->draw();
     for (PowerUp &powerUp : power_ups)
       if (!powerUp.destroyed)
         powerUp.draw(*renderer);
@@ -262,7 +262,7 @@ void Game::process_input(float dt) {
       if (level > 0)
         --level;
       else
-        level = 3;   
+        level = 3;
       key_processed[GLFW_KEY_S] = true;
     }
   }
@@ -342,7 +342,7 @@ void Game::process_collisions() {
     float strength = 2.0f;
     glm::vec2 oldvelocity = ball->velocity;
     ball->velocity.x = INITIAL_BALL_VELOCITY.x * percentage * strength;
-    ball->velocity.y = -1.0f * std::abs(ball->velocity.y);  
+    ball->velocity.y = -1.0f * std::abs(ball->velocity.y);
     ball->velocity = glm::normalize(ball->velocity) * glm::length(oldvelocity);
     sound_engine->play2D("../resources/sound/bleep.wav", false);
   }
@@ -371,7 +371,7 @@ void ActivatePowerUp(PowerUp& powerUp) {
     if (!effects->confuse)
       effects->chaos = true;
   }
-} 
+}
 
 void Game::update_power_ups(float dt) {
   for (PowerUp &powerUp : power_ups) {
@@ -408,7 +408,7 @@ void Game::update_power_ups(float dt) {
             // only reset if no other PowerUp of type chaos is active
             effects->chaos = false;
           }
-        }                
+        }
       }
     }
   }
@@ -429,7 +429,7 @@ bool isOtherPowerUpActive(std::vector<PowerUp>& powerUps, std::string type) {
         return true;
   }
   return false;
-} 
+}
 
 bool CheckCollision(pgl::GameObject& one, pgl::GameObject& two) { // AABB - AABB collision
   // Collision x-axis?

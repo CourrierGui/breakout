@@ -3,7 +3,10 @@ Implementation of the Breakout game in C++.
 
 ![alt text](resources/screenshot.png)
 
-This game comes from the [LearnOpenGL](https://learnopengl.com) website and was built using my game engine available [here](https://github.com/CourrierGui/pangolin).
+This game comes from the [LearnOpenGL](https://learnopengl.com) website and was
+built using my game engine available
+[here](https://github.com/CourrierGui/pangolin) (commit
+e7a6d375f946978d7895bf61c556de22cb0a1848).
 
 # Installation steps
 

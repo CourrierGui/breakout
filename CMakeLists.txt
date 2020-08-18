@@ -6,7 +6,8 @@ else()
     cmake_policy(VERSION 3.15)
 endif()
 
-project(beat-the-boredom VERSION 1.0
+project(beat-the-boredom
+	VERSION 1.0
   DESCRIPTION "Breakout game from learnopengl.com"
   LANGUAGES CXX
 )
@@ -14,6 +15,8 @@ project(beat-the-boredom VERSION 1.0
 # set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 find_package(pangolin REQUIRED)
+find_package(OpenAL REQUIRED)
+find_package(glfw3 REQUIRED)
 
 add_library(irrKlanglib SHARED IMPORTED)
 set_target_properties(irrKlanglib PROPERTIES
@@ -32,8 +35,6 @@ target_include_directories(game-utils
     extern/irrKlang/irrKlang-64bit-1.6.0/include
 )
 target_link_libraries(game-utils pangolin::pangolin irrKlanglib pangolin::glad)
-
-find_package(glfw3 REQUIRED)
 
 add_executable(breakout apps/breakout.cpp)
 target_include_directories(breakout PUBLIC include)
