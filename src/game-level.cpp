@@ -42,28 +42,28 @@ void GameLevel::init(
     for (unsigned int x = 0; x < width; ++x) {
       // check block type from level data (2D level array)
       if (tile_data[y][x] == 1) { // solid
-        glm::vec2 pos(unit_width * x, unit_height * y);
-        glm::vec2 size(unit_width, unit_height);
+        pgl::float2 pos(unit_width * x, unit_height * y);
+        pgl::float2 size(unit_width, unit_height);
         pgl::GameObject obj(
           pos, size, 
           pgl::ResourceManager::get_texture("block_solid"), 
-          glm::vec3(0.8f, 0.8f, 0.7f));
+          pgl::float3(0.8f, 0.8f, 0.7f));
         obj.is_solid = true;
         bricks.push_back(obj);
       }
       else if (tile_data[y][x] > 1)	{
-        glm::vec3 color = glm::vec3(1.0f); // original: white
+        pgl::float3 color = pgl::float3(1.0f); // original: white
         if (tile_data[y][x] == 2)
-          color = glm::vec3(0.2f, 0.6f, 1.0f);
+          color = pgl::float3(0.2f, 0.6f, 1.0f);
         else if (tile_data[y][x] == 3)
-          color = glm::vec3(0.0f, 0.7f, 0.0f);
+          color = pgl::float3(0.0f, 0.7f, 0.0f);
         else if (tile_data[y][x] == 4)
-          color = glm::vec3(0.8f, 0.8f, 0.4f);
+          color = pgl::float3(0.8f, 0.8f, 0.4f);
         else if (tile_data[y][x] == 5)
-          color = glm::vec3(1.0f, 0.5f, 0.0f);
+          color = pgl::float3(1.0f, 0.5f, 0.0f);
 
-        glm::vec2 pos(unit_width * x, unit_height * y);
-        glm::vec2 size(unit_width, unit_height);
+        pgl::float2 pos(unit_width * x, unit_height * y);
+        pgl::float2 size(unit_width, unit_height);
         bricks.push_back(
           pgl::GameObject(pos, size, pgl::ResourceManager::get_texture("block"), color));
       }

@@ -26,6 +26,7 @@ const unsigned int SCREEN_HEIGHT = 600;
 Game Breakout(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 int main(int argc, char *argv[]) {
+
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -56,7 +57,7 @@ int main(int argc, char *argv[]) {
 
   // initialize game
   // ---------------
-  pgl::set_root("/home/guillaume/dev/breakout");
+  pgl::set_root("/home/guillaume/dev/projects/breakout");
   Breakout.init();
 
   // deltaTime variables

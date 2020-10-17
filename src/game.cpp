@@ -1,12 +1,12 @@
 #include <breakout/game.hpp>
 
 // Initial size of the player paddle
-const glm::vec2 PLAYER_SIZE(100.0f, 20.0f);
+const pgl::float2 PLAYER_SIZE(100.0f, 20.0f);
 // Initial velocity of the player paddle
 const GLfloat PLAYER_VELOCITY(500.0f);
 
 // Initial velocity of the Ball
-const glm::vec2 INITIAL_BALL_VELOCITY(100.0f, -250.0f);
+const pgl::float2 INITIAL_BALL_VELOCITY(100.0f, -250.0f);
 // Radius of the ball object
 const float BALL_RADIUS = 12.5f;
 
@@ -50,18 +50,21 @@ void Game::init() {
     "", "text"
   );
 
-
   // configure shaders
-  glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(width),
-                                    static_cast<float>(height), 0.0f, -1.0f, 1.0f);
+	pgl::float44 projection = pgl::ortho(
+		0.0f, static_cast<float>(width),
+		static_cast<float>(height), 0.0f, -1.0f, 1.0f);
+
   pgl::ResourceManager::get_shader("sprite").use().setInteger("image", 0);
   pgl::ResourceManager::get_shader("sprite").setMatrix4("projection", projection);
   pgl::ResourceManager::get_shader("particle").use().setInteger("sprite", 0);
   pgl::ResourceManager::get_shader("particle").setMatrix4("projection", projection);
+
   // set render-specific controls
-  renderer = new pgl::render2D::SpriteRenderer(pgl::ResourceManager::get_shader("sprite"));
-  effects = new PostProcessor(pgl::ResourceManager::get_shader("postprocessing"),
-                              width, height);
+  renderer = new pgl::render2D::SpriteRenderer(
+		pgl::ResourceManager::get_shader("sprite"));
+  effects = new PostProcessor(
+		pgl::ResourceManager::get_shader("postprocessing"), width, height);
   sound_engine->play2D("../resources/sound/breakout.mp3", true);
 
   // load textures
@@ -89,17 +92,18 @@ void Game::init() {
   levels.push_back(four);
   level = 0;
 
-  glm::vec2 player_pos = glm::vec2(
+  pgl::float2 player_pos = pgl::float2(
     width / 2.0f - PLAYER_SIZE.x / 2.0f,
     height - PLAYER_SIZE.y
   );
   player = new pgl::GameObject(player_pos, PLAYER_SIZE, pgl::ResourceManager::get_texture("paddle"));
 
-  glm::vec2 ball_pos = player_pos + glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS,
+  pgl::float2 ball_pos = player_pos + pgl::float2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS,
                                             -BALL_RADIUS * 2.0f);
   ball = new BallObject(ball_pos, BALL_RADIUS, INITIAL_BALL_VELOCITY,
                         pgl::ResourceManager::get_texture("face"));
-  text = new pgl::ui::TextRenderer(width, height, pgl::ResourceManager::get_shader("text"));
+  text = new pgl::ui::TextRenderer(
+		width, height, pgl::ResourceManager::get_shader("text"));
   text->load("../resources/fonts/ocraext.TTF", 24);
 
   particles = new pgl::ParticleGenerator(
@@ -112,7 +116,7 @@ void Game::init() {
 void Game::update(float dt) {
   ball->move(dt, width);
   process_collisions();
-  particles->update(dt, *ball, 2, glm::vec2(ball->radius / 2.0f));
+  particles->update(dt, *ball, 2, pgl::float2(ball->radius / 2.0f));
 
   if (shake_time > 0.0f) {
     shake_time -= dt;
@@ -143,33 +147,38 @@ void Game::render() {
   if(state == GAME_ACTIVE || state == GAME_MENU) {
     // draw background
     effects->begin_render();
-    renderer->draw(pgl::ResourceManager::get_texture("background"),
-                   glm::vec2(0.0f, 0.0f), glm::vec2(width, height), 0.0f);
+    renderer->draw(
+			pgl::ResourceManager::get_texture("background"),
+			pgl::float2(0.0f, 0.0f), pgl::float2(width, height), 0.0f);
+
     // draw level
     levels[level].draw(*renderer);
     player->draw(*renderer);
     particles->draw();
-    for (PowerUp &powerUp : power_ups)
-      if (!powerUp.destroyed)
-        powerUp.draw(*renderer);
+		for (PowerUp &powerUp : power_ups) {
+			if (!powerUp.destroyed) {
+				powerUp.draw(*renderer);
+			}
+		}
     ball->draw(*renderer);
     effects->end_render();
     effects->render(glfwGetTime());
 
     std::stringstream ss; ss << lives;
     text->render_text("Lives:" + ss.str(), 5.0f, 5.0f, 1.0f);
-  }
-  if (state == GAME_MENU) {
+
+  } else if (state == GAME_MENU) {
     text->render_text("Press ENTER to start", 250.0f, height / 2, 1.0f);
     text->render_text("Press W or S to select level", 245.0f, height / 2 + 20.0f, 0.75f);
-  }
-  if (state == GAME_WIN) {
+
+  } else if (state == GAME_WIN) {
     text->render_text(
-      "You WON!!!", 320.0, height / 2 - 20.0, 1.0, glm::vec3(0.0, 1.0, 0.0)
-      );
-    text->render_text(
-      "Press ENTER to retry or ESC to quit", 130.0, height / 2, 1.0, glm::vec3(1.0, 1.0, 0.0)
-      );
+      "You WON!!!", 320.0, height / 2 - 20.0, 1.0, pgl::float3(0.0, 1.0, 0.0)
+    );
+		text->render_text(
+      "Press ENTER to retry or ESC to quit",
+			130.0, height / 2, 1.0, pgl::float3(1.0, 1.0, 0.0)
+		);
   }
 }
 
@@ -181,27 +190,28 @@ bool should_spawn(unsigned int chance) {
 void Game::spawn_power_ups(pgl::GameObject& block) {
   if (should_spawn(GOOD_RATE)) // 1 in GOOD_RATE chance
     power_ups.push_back(
-      PowerUp("speed", glm::vec3(0.5f, 0.5f, 1.0f), 0.0f,
+      PowerUp("speed", pgl::float3(0.5f, 0.5f, 1.0f), 0.0f,
               block.position, pgl::ResourceManager::get_texture("powerup_speed")));
   if (should_spawn(GOOD_RATE))
     power_ups.push_back(
-      PowerUp("sticky", glm::vec3(1.0f, 0.5f, 1.0f), 20.0f,
+      PowerUp("sticky", pgl::float3(1.0f, 0.5f, 1.0f), 20.0f,
               block.position, pgl::ResourceManager::get_texture("powerup_sticky")));
   if (should_spawn(GOOD_RATE))
       power_ups.push_back(
-        PowerUp("pass-through", glm::vec3(0.5f, 1.0f, 0.5f), 10.0f,
-                block.position, pgl::ResourceManager::get_texture("powerup_passthrough")));
+        PowerUp(
+					"pass-through", pgl::float3(0.5f, 1.0f, 0.5f), 10.0f,
+					block.position, pgl::ResourceManager::get_texture("powerup_passthrough")));
   if (should_spawn(GOOD_RATE))
   power_ups.push_back(
-        PowerUp("pad-size-increase", glm::vec3(1.0f, 0.6f, 0.4), 0.0f,
+        PowerUp("pad-size-increase", pgl::float3(1.0f, 0.6f, 0.4), 0.0f,
                 block.position, pgl::ResourceManager::get_texture("powerup_increase")));
   if (should_spawn(BAD_RATE)) // negative powerups should spawn more often
     power_ups.push_back(
-      PowerUp("confuse", glm::vec3(1.0f, 0.3f, 0.3f), 5.0f,
+      PowerUp("confuse", pgl::float3(1.0f, 0.3f, 0.3f), 5.0f,
               block.position, pgl::ResourceManager::get_texture("powerup_confuse")));
   if (should_spawn(BAD_RATE))
     power_ups.push_back(
-      PowerUp("chaos", glm::vec3(0.9f, 0.25f, 0.25f), 5.0f,
+      PowerUp("chaos", pgl::float3(0.9f, 0.25f, 0.25f), 5.0f,
               block.position, pgl::ResourceManager::get_texture("powerup_chaos")));
 }
 
@@ -220,11 +230,13 @@ void Game::reset_level() {
 void Game::reset_player() {
   // reset player/ball stats
   player->size = PLAYER_SIZE;
-  player->position = glm::vec2(width / 2.0f - PLAYER_SIZE.x / 2.0f, height - PLAYER_SIZE.y);
-  ball->reset(
-    player->position + glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS,
-                                 -(BALL_RADIUS * 2.0f)),
-    INITIAL_BALL_VELOCITY);
+  player->position = pgl::float2(
+		width / 2.0f - PLAYER_SIZE.x / 2.0f, height - PLAYER_SIZE.y);
+  ball->reset(player->position
+							+ pgl::float2(
+								PLAYER_SIZE.x / 2.0f - BALL_RADIUS,
+							 -(BALL_RADIUS * 2.0f)),
+							INITIAL_BALL_VELOCITY);
 }
 
 void Game::process_input(float dt) {
@@ -291,7 +303,7 @@ void Game::process_collisions() {
           sound_engine->play2D("../resources/sound/solid.wav", GL_FALSE);
         }
         Direction dir = std::get<1>(collision);
-        glm::vec2 diff_vector = std::get<2>(collision);
+        pgl::float2 diff_vector = std::get<2>(collision);
         if (!(ball->pass_through && !box.is_solid)) {
           if (dir == LEFT || dir == RIGHT) { // horizontal collision
             ball->velocity.x = -ball->velocity.x; // reverse horizontal velocity
@@ -340,10 +352,11 @@ void Game::process_collisions() {
 
     // then move accordingly
     float strength = 2.0f;
-    glm::vec2 oldvelocity = ball->velocity;
+    pgl::float2 oldvelocity = ball->velocity;
     ball->velocity.x = INITIAL_BALL_VELOCITY.x * percentage * strength;
     ball->velocity.y = -1.0f * std::abs(ball->velocity.y);
-    ball->velocity = glm::normalize(ball->velocity) * glm::length(oldvelocity);
+		//TODO see if it works
+    ball->velocity = pgl::normalize(ball->velocity) * pgl::norm(oldvelocity);
     sound_engine->play2D("../resources/sound/bleep.wav", false);
   }
 }
@@ -354,11 +367,11 @@ void ActivatePowerUp(PowerUp& powerUp) {
   }
   else if (powerUp.Type == "sticky") {
     ball->sticky = true;
-    player->color = glm::vec3(1.0f, 0.5f, 1.0f);
+    player->color = pgl::float3(1.0f, 0.5f, 1.0f);
   }
   else if (powerUp.Type == "pass-through") {
     ball->pass_through = true;
-    ball->color = glm::vec3(1.0f, 0.5f, 0.5f);
+    ball->color = pgl::float3(1.0f, 0.5f, 0.5f);
   }
   else if (powerUp.Type == "pad-size-increase") {
     player->size.x += 50;
@@ -387,14 +400,14 @@ void Game::update_power_ups(float dt) {
           if (!isOtherPowerUpActive(power_ups, "sticky")) {
             // only reset if no other PowerUp of type sticky is active
             ball->sticky = false;
-            player->color = glm::vec3(1.0f);
+            player->color = pgl::float3(1.0f);
           }
         }
         else if (powerUp.Type == "pass-through") {
           if (!isOtherPowerUpActive(power_ups, "pass-through")) {
             // only reset if no other PowerUp of type pass-through is active
             ball->pass_through = false;
-            ball->color = glm::vec3(1.0f);
+            ball->color = pgl::float3(1.0f);
           }
         }
         else if (powerUp.Type == "confuse") {
@@ -442,41 +455,45 @@ bool CheckCollision(pgl::GameObject& one, pgl::GameObject& two) { // AABB - AABB
   return collisionX && collisionY;
 }
 
-Collision CheckCollision(BallObject &one, pgl::GameObject &two) { // AABB - Circle collision
+/*
+ * AABB - Circle collision
+ */
+auto CheckCollision(BallObject& ball, pgl::GameObject& object)
+	-> Collision
+{
   // get center point circle first
-  glm::vec2 center(one.position + one.radius);
+  pgl::float2 center{ball.position + ball.radius};
   // calculate AABB info (center, half-extents)
-  glm::vec2 aabb_half_extents(two.size.x / 2.0f, two.size.y / 2.0f);
-  glm::vec2 aabb_center(
-    two.position.x + aabb_half_extents.x,
-    two.position.y + aabb_half_extents.y
-    );
+  pgl::float2 aabb_half_extents{object.size/2.0f};
+  pgl::float2 aabb_center(object.position + aabb_half_extents);
+
   // get difference vector between both centers
-  glm::vec2 difference = center - aabb_center;
-  glm::vec2 clamped = glm::clamp(difference, -aabb_half_extents, aabb_half_extents);
+  pgl::float2 difference = center - aabb_center;
+	//TODO see if it works
+  pgl::float2 clamped = pgl::clamp(difference, -aabb_half_extents, aabb_half_extents);
   // add clamped value to AABB_center and we get the value of box closest to circle
-  glm::vec2 closest = aabb_center + clamped;
+  pgl::float2 closest = aabb_center + clamped;
   // retrieve vector between center circle and closest point AABB and check if length <= radius
   difference = closest - center;
 
-  if (glm::length(difference) < one.radius) {
+  if (pgl::norm(difference) < ball.radius) {
     return {true, vector_direction(difference), difference};
   } else {
-    return {false, UP, glm::vec2(0.0f, 0.0f)};
+    return {false, UP, pgl::float2(0.0f, 0.0f)};
   }
 }
 
-Direction vector_direction(glm::vec2 target) {
-  glm::vec2 compass[] = {
-    glm::vec2(0.0f, 1.0f),	// up
-    glm::vec2(1.0f, 0.0f),	// right
-    glm::vec2(0.0f, -1.0f),	// down
-    glm::vec2(-1.0f, 0.0f)	// left
+auto vector_direction(pgl::float2 target) -> Direction {
+  pgl::float2 compass[] = {
+    pgl::float2(0.0f, 1.0f),	// up
+    pgl::float2(1.0f, 0.0f),	// right
+    pgl::float2(0.0f, -1.0f),	// down
+    pgl::float2(-1.0f, 0.0f)	// left
   };
   float max = 0.0f;
   unsigned int best_match = -1;
   for (unsigned int i = 0; i < 4; i++) {
-    float dot_product = glm::dot(glm::normalize(target), compass[i]);
+    float dot_product = pgl::dot(pgl::normalize(target), compass[i]);
     if (dot_product > max) {
       max = dot_product;
       best_match = i;

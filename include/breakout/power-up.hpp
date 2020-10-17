@@ -11,15 +11,14 @@
 #include <string>
 
 #include <glad/glad.h>
-#include <glm/glm.hpp>
 
 #include <pangolin/game-object.hpp>
-
+#include <pgl-math/vector.hpp>
 
 // The size of a PowerUp block
-const glm::vec2 POWERUP_SIZE(60.0f, 20.0f);
+const pgl::float2 POWERUP_SIZE(60.0f, 20.0f);
 // Velocity a PowerUp block has when spawned
-const glm::vec2 VELOCITY(0.0f, 150.0f);
+const pgl::float2 VELOCITY(0.0f, 150.0f);
 
 
 // PowerUp inherits its state and rendering functions from
@@ -34,8 +33,8 @@ class PowerUp : public pgl::GameObject {
     bool        Activated;
     // constructor
     PowerUp(
-      std::string type, glm::vec3 color,
-      float duration, glm::vec2 position,
+      std::string type, pgl::float3 color,
+      float duration, pgl::float2 position,
       pgl::Texture2D texture) 
       : GameObject(position, POWERUP_SIZE,
                    texture, color, VELOCITY),

@@ -2,6 +2,7 @@
 
 #include <pangolin/glfw-support.hpp>
 #include <pangolin/game-object.hpp>
+#include <pgl-math/vector.hpp>
 
 class BallObject : public pgl::GameObject {
   public:
@@ -12,11 +13,11 @@ class BallObject : public pgl::GameObject {
 
     BallObject();
     BallObject(
-      glm::vec2 pos, float radius,
-      glm::vec2 velocity,
+      pgl::float2 pos, float radius,
+      pgl::float2 velocity,
       pgl::Texture2D sprite
     );
 
-    glm::vec2 move(float dt, unsigned int window_width);
-    void      reset(glm::vec2 position, glm::vec2 velocity);
+    auto move(float dt, unsigned int window_width) -> pgl::float2;
+    void reset(pgl::float2 position, pgl::float2 velocity);
 }; 

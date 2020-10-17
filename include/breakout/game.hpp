@@ -7,6 +7,10 @@
 #include <pangolin/text-renderer.hpp>
 #include <pangolin/game-object.hpp>
 
+#include <pgl-math/vector.hpp>
+#include <pgl-math/matrix.hpp>
+#include <pgl-math/algorithms.hpp>
+
 #include <breakout/game-level.hpp>
 #include <breakout/ball-object.hpp>
 #include <breakout/post-processor.hpp>
@@ -32,11 +36,11 @@ enum Direction {
 const unsigned int BAD_RATE = 15;
 const unsigned int GOOD_RATE = 30;
 
-using Collision = std::tuple<bool, Direction, glm::vec2>;
+using Collision = std::tuple<bool, Direction, pgl::float2>;
 
 bool CheckCollision(pgl::GameObject& one, pgl::GameObject& two);
-Collision CheckCollision(BallObject& one, pgl::GameObject& two);
-Direction vector_direction(glm::vec2 target);
+auto CheckCollision(BallObject& one, pgl::GameObject& two) -> Collision;
+auto vector_direction(pgl::float2 target) -> Direction;
 bool should_spawn(unsigned int chance);
 void ActivatePowerUp(PowerUp& powerUp);
 bool isOtherPowerUpActive(std::vector<PowerUp> &powerUps, std::string type);

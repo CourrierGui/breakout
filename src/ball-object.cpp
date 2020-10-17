@@ -1,22 +1,21 @@
 #include <breakout/ball-object.hpp>
 
-
 BallObject::BallObject()
   : GameObject(), radius(12.5f), stuck(true),
   sticky(false), pass_through(false) { }
 
 BallObject::BallObject(
-  glm::vec2 pos, float radius,
-  glm::vec2 velocity,
+  pgl::float2 pos, float radius,
+  pgl::float2 velocity,
   pgl::Texture2D sprite)
-  : GameObject(pos, glm::vec2(radius * 2.0f, radius * 2.0f),
-               sprite, glm::vec3(1.0f), velocity),
+  : GameObject(pos, pgl::float2(radius * 2.0f, radius * 2.0f),
+               sprite, pgl::float3(1.0f), velocity),
   radius(radius),
   sticky(false),
   pass_through(false),
   stuck(true) { }
 
-glm::vec2 BallObject::move(float dt, unsigned int window_width) {
+pgl::float2 BallObject::move(float dt, unsigned int window_width) {
   // if not stuck to player board
   if (!stuck) {
     // move the ball
@@ -42,7 +41,7 @@ glm::vec2 BallObject::move(float dt, unsigned int window_width) {
 }
 
 // resets the ball to initial Stuck Position (if ball is outside window bounds)
-void BallObject::reset(glm::vec2 position, glm::vec2 velocity) {
+void BallObject::reset(pgl::float2 position, pgl::float2 velocity) {
   this->position = position;
   this->velocity = velocity;
   stuck = true;
